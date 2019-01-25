@@ -1,0 +1,210 @@
+
+<style>
+  .layui-form-select{
+    width: 190px;
+  }
+  .layui-form-label{
+    width: 80px;
+  }
+</style>
+<div class="layui-form" lay-filter="layuiadmin-form-roleadmin" style="padding: 20px 0 0 0;">
+  <div class="layui-form-item">
+    <label class="layui-form-label">角色名称</label>
+    <div class="layui-input-inline">
+      <script type="text/html" template>
+      	<input type="hidden" id="roleIdHidden" value="{{ (null != d.params.roleId && undefined != d.params.roleId)?d.params.roleId:'' }}"/>
+        <input type="text" name="roleName" value="{{ d.params.roleName || '' }}" lay-verify="required" placeholder="请输入用户名" autocomplete="off" class="layui-input">
+      </script>
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label">描述</label>
+    <div class="layui-input-inline">
+      <script type="text/html" template>
+        <textarea name="des" cols="22" rows="5" style="border-color: #D2D2D2!important;resize: none;padding: 5px 10px;">{{ d.params.des || '' }}</textarea>
+      </script>
+    </div>
+  </div>
+  <div class="layui-form-item">
+		<label class="layui-form-label">选择权限</label>
+		<div class="layui-input-block">
+			<div id="LAY-auth-tree-index"></div>
+		</div>
+	</div>
+  <div class="layui-form-item">
+    <label class="layui-form-label"></label>
+    <div class="layui-input-inline">
+      <input type="button" lay-submit lay-filter="LAY-role-front-submit" value="确认" class="layui-btn">
+    </div>
+  </div>
+</div>
+
+<script>
+layui.use(['admin', 'form', 'upload'], function(){
+  var $ = layui.$
+  ,form = layui.form
+  ,upload = layui.upload;
+
+    form.render(null, "layuiadmin-form-roleadmin");
+
+})
+layui.use(['jquery','admin', 'authtree', 'form', 'layer'], function(){
+	var $ = layui.jquery;
+	var authtree = layui.authtree;
+	var form = layui.form;
+	var admin = layui.admin;
+	var layer = layui.layer;
+	// 初始化
+	admin.req({
+	    url: layui.setter.baseProject + "/api/permission/list"
+	    ,type: "GET"
+	    ,dataType: "json"
+	    ,done: function (res) {
+//					console.log(res.data)
+					var result = res.data;
+					var resultChildren = res.data;
+					//查询用户拥有的权限
+			    admin.req({
+			        url: layui.setter.baseProject + "/api/permission/findListByRoleId/"+ $("#roleIdHidden").val()
+			        ,type: "GET"
+			        ,dataType: "json"
+			        ,done: function (res) {
+									var userResult = res.data;
+									
+									for(var b = 0; b < result.length; b++) {
+											result[b].checked = false;
+											resultChildren[b].checked = false;
+											for(var a = 0; a < userResult.length; a++) {
+													if(userResult[a].perId == result[b].perId) {
+														result[b].checked = true;
+														resultChildren[b].checked = true;
+													}
+											}
+									}
+									console.log(result)
+									// 渲染时传入渲染目标ID，树形结构数据（具体结构看样例，checked表示默认选中），以及input表单的名字
+									var dataArray = new Array();
+									for (var i=0;i<result.length;i++){
+										if(result[i].parentId == null){
+											var childrenArray = new Array();
+											for (var j=0;j<resultChildren.length;j++){
+													if (resultChildren[j].parentId == result[i].perId) {
+															//第二层
+															var childrenObj = {
+															    "name": resultChildren[j].perName, 
+											            "value": resultChildren[j].perId,
+											            "checked":resultChildren[j].checked
+															};
+															childrenArray.push(childrenObj);
+													}else{
+															
+													}
+											}
+											if (childrenArray.length>0) {
+													//第一层
+													var obj = {
+													    "name": result[i].perName, 
+									            "value": result[i].perId,
+									            "checked":result[i].checked,
+									            "list": childrenArray
+													};
+													dataArray.push(obj);
+											}else{
+													//第一层
+													var obj = {
+													    "name": result[i].perName, 
+									            "value": result[i].perId,
+									            "checked":result[i].checked
+													};
+													dataArray.push(obj);
+											}
+										}
+									}
+			        
+							authtree.render('#LAY-auth-tree-index', dataArray, {
+								inputname: 'authids[]'
+								,layfilter: 'lay-check-auth'
+								// ,autoclose: false
+								// ,autochecked: false
+								// ,openchecked: true
+								// ,openall: true
+								,autowidth: true
+							});
+				
+							// PS:使用 form.on() 会引起了事件冒泡延迟的BUG，需要 setTimeout()，并且无法监听全选/全不选
+							// PS:如果开启双击展开配置，form.on()会记录两次点击事件，authtree.on()不会
+//							form.on('checkbox(lay-check-auth)', function(data){
+//								// 注意这里：需要等待事件冒泡完成，不然获取叶子节点不准确。
+//								setTimeout(function(){
+//									console.log('监听 form 触发事件数据', data);
+//									// 获取选中的叶子节点
+//									var leaf = authtree.getLeaf('#LAY-auth-tree-index');
+//									console.log('leaf', leaf);
+//									// 获取最新选中
+//									var lastChecked = authtree.getLastChecked('#LAY-auth-tree-index');
+//									console.log('lastChecked', lastChecked);
+//									// 获取最新取消
+//				//					var lastNotChecked = authtree.getLastNotChecked('#LAY-auth-tree-index');
+//				//					console.log('lastNotChecked', lastNotChecked);
+//								}, 100);
+//							});
+							// 使用 authtree.on() 不会有冒泡延迟
+							authtree.on('change(lay-check-auth)', function(data) {
+								console.log('监听 authtree 触发事件数据', data);
+								// 获取所有节点
+				//				var all = authtree.getAll('#LAY-auth-tree-index');
+				//				console.log('all', all);
+								// 获取所有已选中节点
+				//				var checked = authtree.getChecked('#LAY-auth-tree-index');
+				//				console.log('checked', checked);
+								// 获取所有未选中节点
+				//				var notchecked = authtree.getNotChecked('#LAY-auth-tree-index');
+				//				console.log('notchecked', notchecked);
+								// 获取选中的叶子节点
+								var leaf = authtree.getLeaf('#LAY-auth-tree-index');
+								console.log('leaf', leaf);
+								// 获取最新选中
+								var lastChecked = authtree.getLastChecked('#LAY-auth-tree-index');
+								console.log('lastChecked', lastChecked);
+								// 获取最新取消
+				//				var lastNotChecked = authtree.getLastNotChecked('#LAY-auth-tree-index');
+				//				console.log('lastNotChecked', lastNotChecked);
+							});
+							authtree.on('deptChange(lay-check-auth)', function(data) {
+									console.log('监听到显示层数改变',data);
+					    })
+	    			}
+	   		})
+			}
+	});
+	
+	form.on('submit(LAY-role-front-submit)', function(obj){
+		var perIds = authtree.getChecked('#LAY-auth-tree-index');
+		console.log($("#roleIdHidden").val())
+		var dataJson = {
+			"perIds":perIds
+		}
+		console.log('perIds is', dataJson);
+		admin.req({
+        url: layui.setter.baseProject + "/api/role/grant/" + $("#roleIdHidden").val()
+        ,type: "POST"
+        ,data: JSON.stringify(dataJson)
+        ,dataType: "json"
+        ,contentType: "application/json;charset=utf-8"
+        ,done: function (res) {
+            layui.layer.alert(res.msg, function () {
+                layui.table.reload('LAY-role-manage'); //重载表格
+                layer.closeAll(); //执行关闭
+            })
+        }
+    })
+	});
+});
+layui.data.done = function(d){
+    layui.use(['form'], function(){
+        var form = layui.form;
+        var $ = layui.$;
+        form.render(null, 'layuiadmin-form-roleadmin'); //渲染该模板下的动态表单
+    });
+};
+</script>

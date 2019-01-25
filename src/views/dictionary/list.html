@@ -1,0 +1,221 @@
+<title>数据字典管理</title>
+
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">主页</a>
+        <a><cite>数据字典列表</cite></a>
+    </div>
+</div>
+
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-form layui-card-header layuiadmin-card-header-auto" lay-filter="layadmin-dictionaryfront-formlist">
+            <div class="layui-form-item">
+
+                <div class="layui-inline">
+                    <label class="layui-form-label">字典标题</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="dicTitle" placeholder="请输入字典标题" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">字典值</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="dicName" placeholder="请输入字典值" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+
+                <div class="layui-inline">
+                    <button class="layui-btn layuiadmin-btn-dictionaryadmin" lay-submit lay-filter="LAY-dictionary-front-search">
+                        <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="layui-card-body">
+            <div style="padding-bottom: 10px;">
+                <!--<button class="layui-btn layuiadmin-btn-useradmin" data-type="batchdel">删除</button>-->
+                <button class="layui-btn layuiadmin-btn-dictionaryadmin" data-type="add">添加</button>
+            </div>
+
+            <table id="LAY-dictionary-manage" lay-filter="LAY-dictionary-manage"></table>
+            <script type="text/html" id="imgTpl">
+                <img style="display: inline-block; width: 50%; height: 100%;" src={{ d.avatar }}>
+            </script>
+            <script type="text/html" id="dictionary-operation">
+                <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="edit"><i
+                        class="layui-icon layui-icon-edit"></i>编辑</a>
+                <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del"><i
+                        class="layui-icon layui-icon-delete"></i>删除</a>
+            </script>
+        </div>
+    </div>
+</div>
+
+<script>
+    layui.define(['table', 'form'], function (exports) {
+        var $ = layui.$
+            , admin = layui.admin
+            , view = layui.view
+            , table = layui.table
+            , form = layui.form;
+
+        //用户管理
+        table.render({
+            elem: '#LAY-dictionary-manage'
+            ,request: {
+                pageName: 'current' //页码的参数名称，默认：page
+                ,limitName: 'size' //每页数据量的参数名，默认：limit
+            }
+            ,headers: {"Authorization": layui.data(layui.setter.tableName)["Authorization"]}
+            , url: layui.setter.baseProject + '/api/dictionary/page' //模拟接口
+            , cols: [[
+                {field: 'id', width: 100, title: '序号', type: 'numbers', sort: true}
+                , {field: 'dicName', title: '标题', minWidth: 100, sort: true}
+                , {field: 'dicValue', title: '值', minWidth: 100, sort: true}
+                , {field: 'dicDesc', title: '描述', minWidth: 200}
+                , {field: 'createTime', title: '创建时间', sort: true, templet: function (v) {
+                        return layui.util.toDateString(v.createTime, 'yyyy-MM-dd HH:mm:ss');
+                    }}
+                , {title: '操作', width: 150, align: 'center', fixed: 'right', toolbar: '#dictionary-operation'}
+            ]]
+            , page: true
+            , limit: 10
+            , text: {
+                none: '暂无相关数据' //默认：无数据。注：该属性为 layui 2.2.5 开始新增
+            }
+        });
+
+        //监听工具条
+        table.on('tool(LAY-dictionary-manage)', function (obj) {
+            var data = obj.data;
+            if (obj.event === 'del') {
+                layer.confirm('真的删除吗', function (index) {
+                    admin.req({
+                        url: layui.setter.baseProject + "/api/dictionary/" + obj.data.dicId
+                        ,type: "DELETE"
+                        ,dataType: "json"
+                        ,contentType: "application/json;charset=utf-8"
+                        ,done: function (res) {
+                            layui.layer.alert(res.msg, function () {
+                                layui.table.reload('LAY-dictionary-manage'); //重载表格
+                                layer.closeAll(); //执行关闭
+                            })
+                        }
+                    })
+
+                });
+            } else if (obj.event === 'edit') {
+                admin.popup({                 
+                	shadeClose: true,
+                    title: '编辑数据字典'
+                    , area: ['500px', '450px']
+                    , id: 'LAY-popup-user-add'
+                    , success: function (layero, index) {
+                        view(this.id).render('dictionary/dictionaryform', data).done(function () {
+                            form.render(null, 'layuiadmin-form-dictionaryadmin');
+                            //监听提交
+                            form.on('submit(LAY-dictionary-front-submit)', function (data) {
+                                var field = data.field; //获取提交的字段
+                                //提交 Ajax 成功后，关闭当前弹层并重载表格
+                                admin.req({
+                                    url: layui.setter.baseProject + "/api/dictionary/" + obj.data.dicId
+                                    ,type: "PUT"
+                                    ,data: JSON.stringify(field)
+                                    ,dataType: "json"
+                                    ,contentType: "application/json;charset=utf-8"
+                                    ,done: function (res) {
+                                        layui.layer.alert(res.msg, function () {
+                                            layui.table.reload('LAY-dictionary-manage'); //重载表格
+                                            layer.closeAll(); //执行关闭
+                                        })
+                                    }
+                                })
+                            });
+                        });
+                    }
+                });
+            }
+        });
+
+        form.render(null, 'layadmin-dictionaryfront-formlist');
+
+        //监听搜索
+        form.on('submit(LAY-dictionary-front-search)', function (data) {
+            var field = data.field;
+
+            //执行重载
+            table.reload('LAY-dictionary-manage', {
+                where: field
+                ,page: {
+                    curr: 1 //重新从第 1 页开始
+                }
+            });
+        });
+
+        //事件
+        var active = {
+            /*batchdel: function () {
+                var checkStatus = table.checkStatus('LAY-user-manage')
+                    , checkData = checkStatus.data; //得到选中的数据
+
+                if (checkData.length === 0) {
+                    return layer.msg('请选择数据');
+                }
+
+                layer.confirm('确定删除吗？', function (index) {
+
+                    //执行 Ajax 后重载
+                    /!*
+                    admin.req({
+                      url: 'xxx'
+                      //,……
+                    });
+                    *!/
+                    table.reload('LAY-user-manage');
+                    layer.msg('已删除');
+                });
+            }
+            , */add: function () {
+                admin.popup({                 
+                	shadeClose: true,
+                    title: '添加数据字典'
+                    , area: ['500px', '450px']
+                    , id: 'LAY-popup-dictionary-add'
+                    , success: function (layero, index) {
+                        view(this.id).render('dictionary/dictionaryform').done(function () {
+                            form.render(null, 'layuiadmin-form-dictionaryadmin');
+
+                            //监听提交
+                            form.on('submit(LAY-dictionary-front-submit)', function (data) {
+                                var field = data.field; //获取提交的字段
+
+                                //提交 Ajax 成功后，关闭当前弹层并重载表格
+                               admin.req({
+                                   url: layui.setter.baseProject + "/api/dictionary"
+                                   ,type: "POST"
+                                   ,data: JSON.stringify(field)
+                                   ,dataType: "json"
+                                   ,contentType: "application/json;charset=utf-8"
+                                   ,done: function (res) {
+                                       layui.layer.alert(res.msg, function () {
+                                           layui.table.reload('LAY-dictionary-manage'); //重载表格
+                                           layer.closeAll(); //执行关闭
+                                       })
+                                   }
+                               })
+
+                            });
+                        });
+                    }
+                });
+            }
+        };
+
+        $('.layui-btn.layuiadmin-btn-dictionaryadmin').on('click', function () {
+            var type = $(this).data('type');
+            active[type] ? active[type].call(this) : '';
+        });
+    });
+</script>

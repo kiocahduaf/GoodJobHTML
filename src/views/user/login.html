@@ -1,0 +1,85 @@
+
+<script type="text/html" template>
+  <link rel="stylesheet" href="{{ layui.setter.base }}style/login.css?v={{ layui.admin.v }}-1" media="all">
+</script>
+
+
+<div class="layadmin-user-login layadmin-user-display-show" id="LAY-user-login" style="display: none;">
+
+  <div class="layadmin-user-login-main" >
+    <div class="layadmin-user-login-box layadmin-user-login-header">
+      <h2 style="font-size: 24px;">淮安好工作后台管理系统</h2>
+    </div>
+    <div class="layadmin-user-login-box layadmin-user-login-body layui-form">
+      <div class="layui-form-item">
+        <label class="layadmin-user-login-icon layui-icon layui-icon-username" for="LAY-user-login-username"></label>
+        <input type="text" name="userName" id="LAY-user-login-username" lay-verify="required" placeholder="用户名" class="layui-input" onkeydown="loginEnter();">
+      </div>
+      <div class="layui-form-item">
+        <label class="layadmin-user-login-icon layui-icon layui-icon-password" for="LAY-user-login-password"></label>
+        <input type="password" name="password" id="LAY-user-login-password" lay-verify="required" placeholder="密码" class="layui-input" onkeydown="loginEnter();">
+      </div>
+
+      <div class="layui-form-item">
+        <button class="layui-btn layui-btn-fluid" id="loginSubmit" lay-submit lay-filter="LAY-user-login-submit">登 入</button>
+      </div>
+
+    </div>
+  </div>
+  
+  <div class="layui-trans layadmin-user-login-footer">
+
+  </div>
+  
+</div>
+
+<script>
+layui.use(['admin', 'form', 'user'], function(){
+  var $ = layui.$
+  ,setter = layui.setter
+  ,admin = layui.admin
+  ,form = layui.form
+  ,router = layui.router()
+  ,search = router.search;
+
+  form.render();
+
+  //提交
+  form.on('submit(LAY-user-login-submit)', function(obj){
+//obj.field.appKey = "web";
+    //请求登入接口
+    admin.req({
+      url: layui.setter.baseProject + '/api/login' //实际使用请改成服务端真实接口
+      ,type: 'POST'
+      ,data: obj.field
+//    ,contentType: "application/json;charset=utf-8"
+      ,done: function(res){
+      
+        //请求成功后，写入 access_token
+        layui.data(setter.tableName, {
+          key: setter.request.tokenName
+          ,value: res.data
+        });
+        
+        //登入成功的提示与跳转
+        layer.msg('登入成功', {
+          offset: '15px'
+          ,icon: 1
+          ,time: 1000
+        }, function(){
+          location.hash = search.redirect ? decodeURIComponent(search.redirect) : '/';
+        });
+      }
+    });
+    
+  });
+  
+});
+
+loginEnter = function(e){
+    if(event.keyCode==13) {
+        document.getElementById("loginSubmit").click();
+        return false;
+    }
+}
+</script>

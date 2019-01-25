@@ -1,0 +1,104 @@
+
+<style>
+  .layui-form-select{
+    width: 190px;
+  }
+  .layui-form-label{
+    width: 80px;
+  }
+</style>
+<div class="layui-form" lay-filter="layuiadmin-form-useradmin" style="padding: 20px 0 0 0;">
+  <div class="layui-form-item">
+    <label class="layui-form-label">用户名</label>
+    <div class="layui-input-inline">
+      <script type="text/html" template>
+        <input type="text" name="userName" value="{{ (null != d.params.user && null != d.params.user.userName && undefined != d.params.user.userName)?d.params.user.userName:'' }}" lay-verify="required" placeholder="请输入用户名" autocomplete="off" class="layui-input">
+      </script>
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label">真实姓名</label>
+    <div class="layui-input-inline">
+      <script type="text/html" template>
+        <input type="text" name="realName" value="{{ (null != d.params.user && null != d.params.user.realName && undefined != d.params.user.realName)?d.params.user.realName:'' }}" lay-verify="required" placeholder="请输入真实姓名" autocomplete="off" class="layui-input">
+      </script>
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label">身份证号码</label>
+    <div class="layui-input-inline">
+      <script type="text/html" template>
+        <input type="text" name="identityCard" value="{{ (null != d.params.user && null != d.params.user.identityCard && undefined != d.params.user.identityCard)?d.params.user.identityCard:'' }}" lay-verify="identity" placeholder="请输入身份证号码" autocomplete="off" class="layui-input">
+      </script>
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label">手机号码</label>
+    <div class="layui-input-inline">
+      <script type="text/html" template>
+        <input type="text" name="tel" value="{{ (null != d.params.user && null != d.params.user.tel && undefined != d.params.user.tel)?d.params.user.tel:'' }}" lay-verify="phone" placeholder="请输入号码" autocomplete="off" class="layui-input">
+      </script>
+    </div>
+  </div>
+  <div class="layui-form-item" lay-filter="depId">
+    <label class="layui-form-label">选择角色</label>
+    <div class="layui-input-block">
+      <script type="text/html" template lay-url="{{ layui.setter.baseProject }}/api/role" lay-done="initRole(d);">
+        <input type="hidden" id="roleIdHidden" value="{{ (null != d.params.role && undefined != d.params.role)?d.params.role.roleId:'' }}"/>
+        <select class="layui-input" lay-filter="roleFilter" id="roleId" name="roleId" style="width: 190px;" lay-verify="required">
+          {{#  layui.each(d.data, function(index, item){ }}
+          <option value="{{ item.roleId }}" >{{ item.roleName }}</option>
+          {{#  }); }}
+        </select>
+      </script>
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label">邮箱</label>
+    <div class="layui-input-inline">
+      <script type="text/html" template>
+        <input type="text" name="email" value="{{ (null != d.params.user && null != d.params.user.email && undefined != d.params.user.email)?d.params.user.email:'' }}" lay-verify="email" placeholder="请输入邮箱" autocomplete="off" class="layui-input">
+      </script>
+    </div>
+  </div>
+  <div class="layui-form-item" lay-filter="sex">
+    <label class="layui-form-label">选择性别</label>
+    <div class="layui-input-block">
+      <script type="text/html" template>
+        <input type="radio" name="sex" value="0" title="男" {{ ((null != d.params.user && undefined != d.params.user)?d.params.user.sex:'') == '0' ? 'checked' : '' }}>
+        <input type="radio" name="sex" value="1" title="女" {{ ((null != d.params.user && undefined != d.params.user)?d.params.user.sex:'') == '1' ? 'checked' : '' }}>
+      </script>
+    </div>
+  </div>
+
+  <div class="layui-form-item">
+    <label class="layui-form-label"></label>
+    <div class="layui-input-inline">
+      <input type="button" lay-submit lay-filter="LAY-user-front-submit" value="确认" class="layui-btn">
+    </div>
+  </div>
+</div>
+
+<script>
+layui.use(['admin', 'form', 'upload'], function(){
+    var $ = layui.$
+        , admin = layui.admin
+  ,form = layui.form
+  ,upload = layui.upload;
+
+  form.render(null, 'layuiadmin-form-useradmin');
+
+})
+
+initRole = function(d){
+    layui.use(['admin','form'], function(){
+        var form = layui.form;
+        var $ = layui.$
+            , admin = layui.admin
+        var roleId = $("#roleIdHidden").val()
+        $("#roleId").val(roleId);
+        form.render(null, 'layuiadmin-form-useradmin'); //渲染该模板下的动态表单
+    });
+};
+
+</script>

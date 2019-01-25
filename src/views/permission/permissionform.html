@@ -1,0 +1,120 @@
+
+<style>
+  .layui-form-select{
+    width: 190px;
+  }
+  .layui-form-label{
+    width: 80px;
+  }
+</style>
+<div class="layui-form" lay-filter="layuiadmin-form-permissionadmin" style="padding: 20px 0 0 0;">
+	<div class="layui-form-item" lay-filter="typeStatus">
+    <label class="layui-form-label">菜单类型</label>
+    <div class="layui-input-block">
+      <script type="text/html" template>
+        <select class="layui-input" id="type" name="type" style="width: 533px;" lay-verify="">
+          <option value="0" {{ d.params.type == '0' ? 'selected' : '' }}>菜单</option>
+          <option value="1" {{ d.params.dicType == '1' ? 'selected' : '' }}>接口</option>
+          <option value="2" {{ d.params.dicType == '2' ? 'selected' : '' }}>按钮</option>
+        </select>
+      </script>
+    </div>
+  </div>
+  <div class="layui-form-item" lay-filter="parentId">
+    <label class="layui-form-label">选择父菜单</label>
+    <div class="layui-input-block">
+      <script type="text/html" template lay-url="{{ layui.setter.baseProject }}/api/permission/list" lay-done="initPermission(d);">
+        <input type="hidden" id="perIdHidden" value="{{ (null != d.params.parentId && undefined != d.params.parentId)?d.params.parentId:'' }}"/>
+        <select class="layui-input" lay-filter="permissionFilter" id="parentId" name="parentId" style="width: 533px;">
+          {{#  layui.each(d.data, function(index, item){ }}
+          <option value="{{ item.perId }}" >{{ item.perName }}</option>
+          {{#  }); }}
+        </select>
+      </script>
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label">菜单名称</label>
+    <div class="layui-input-block">
+      <script type="text/html" template>
+        <input type="text" name="perName" value="{{ d.params.perName || '' }}" lay-verify="required" placeholder="请输入菜单名称" autocomplete="off" class="layui-input">
+      </script>
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label">菜单code</label>
+    <div class="layui-input-block">
+      <script type="text/html" template>
+      	<input type="text" name="perCode" value="{{ d.params.perCode || '' }}" lay-verify="required" placeholder="请输入菜单code" autocomplete="off" class="layui-input">
+      </script>
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label">链接地址</label>
+    <div class="layui-input-block">
+      <script type="text/html" template>
+      	<input type="text" name="url" value="{{ d.params.url || '' }}"  placeholder="请输入菜单url" autocomplete="off" class="layui-input">
+      </script>
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label">菜单图标</label>
+    <div class="layui-input-inline">
+      <script type="text/html" template>
+      	<input type="text" name="icon" value="{{ d.params.icon || '' }}" placeholder="请输入菜单图标" autocomplete="off" class="layui-input">
+      </script>
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label">菜单级别</label>
+    <div class="layui-input-inline">
+      <script type="text/html" template>
+      	<input type="text" name="level" value="{{ d.params.level || '' }}" lay-verify="required" placeholder="请输入菜单级别" autocomplete="off" class="layui-input">
+      </script>
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label">排序</label>
+    <div class="layui-input-inline">
+      <script type="text/html" template>
+      	<input type="text" name="seq" value="{{ d.params.seq || '' }}" lay-verify="required" placeholder="请输入排序" autocomplete="off" class="layui-input">
+      </script>
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label"></label>
+    <div class="layui-input-block">
+      <input type="button" lay-submit lay-filter="LAY-permission-front-submit" value="确认" class="layui-btn">
+    </div>
+  </div>
+</div>
+
+<script>
+layui.use(['admin', 'form', 'upload'], function(){
+  var $ = layui.$
+  ,form = layui.form
+  ,upload = layui.upload;
+
+    form.render(null, "layuiadmin-form-permissionadmin");
+
+})
+
+layui.data.done = function(d){
+    layui.use(['form'], function(){
+        var form = layui.form;
+        var $ = layui.$;
+        form.render(null, 'layuiadmin-form-permissionadmin'); //渲染该模板下的动态表单
+    });
+};
+
+initPermission = function(d){
+    layui.use(['admin','form'], function(){
+        var form = layui.form;
+        var $ = layui.$
+        , admin = layui.admin
+        var parentId = $("#perIdHidden").val()
+        $("#parentId").val(parentId);
+        form.render(null, 'layuiadmin-form-permissionadmin'); //渲染该模板下的动态表单
+    });
+};
+</script>

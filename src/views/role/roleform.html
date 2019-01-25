@@ -1,0 +1,52 @@
+
+<style>
+  .layui-form-select{
+    width: 190px;
+  }
+  .layui-form-label{
+    width: 80px;
+  }
+</style>
+<div class="layui-form" lay-filter="layuiadmin-form-roleadmin" style="padding: 20px 0 0 0;">
+  <div class="layui-form-item">
+    <label class="layui-form-label">角色名称</label>
+    <div class="layui-input-inline">
+      <script type="text/html" template>
+        <input type="text" name="roleName" value="{{ d.params.roleName || '' }}" lay-verify="required" placeholder="请输入角色名" autocomplete="off" class="layui-input">
+      </script>
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label">描述</label>
+    <div class="layui-input-inline">
+      <script type="text/html" template>
+        <textarea name="des" cols="22" rows="5" style="border-color: #D2D2D2!important;resize: none;padding: 5px 10px;">{{ d.params.des || '' }}</textarea>
+      </script>
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label"></label>
+    <div class="layui-input-inline">
+      <input type="button" lay-submit lay-filter="LAY-role-front-submit" value="确认" class="layui-btn">
+    </div>
+  </div>
+</div>
+
+<script>
+layui.use(['admin', 'form', 'upload'], function(){
+  var $ = layui.$
+  ,form = layui.form
+  ,upload = layui.upload;
+
+    form.render(null, "layuiadmin-form-roleadmin");
+
+})
+
+layui.data.done = function(d){
+    layui.use(['form'], function(){
+        var form = layui.form;
+        var $ = layui.$;
+        form.render(null, 'layuiadmin-form-roleadmin'); //渲染该模板下的动态表单
+    });
+};
+</script>

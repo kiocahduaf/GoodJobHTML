@@ -1,0 +1,197 @@
+<title>菜单管理</title>
+
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">主页</a>
+        <a><cite>菜单列表</cite></a>
+    </div>
+</div>
+
+<div class="layui-fluid">
+    <div class="layui-card">
+        <!--<div class="layui-form layui-card-header layuiadmin-card-header-auto" lay-filter="layadmin-permissionfront-formlist">
+            <div class="layui-form-item">
+
+                <div class="layui-inline">
+                    <label class="layui-form-label">菜单名称</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="permissionName" placeholder="请输入角色名称" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+
+                <div class="layui-inline">
+                    <button class="layui-btn layuiadmin-btn-permissionadmin" lay-submit lay-filter="LAY-permission-front-search">
+                        <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+                    </button>
+                </div>
+            </div>
+        </div>-->
+
+        <div class="layui-card-body">
+            <div style="padding-bottom: 10px;">
+                <!--<button class="layui-btn layuiadmin-btn-permissionadmin" data-type="batchdel">删除</button>-->
+                <button class="layui-btn layuiadmin-btn-permissionadmin" data-type="add">添加</button>
+            </div>
+
+            <table id="LAY-permission-manage" lay-filter="LAY-permission-manage"></table>
+            <!--<script type="text/html" id="imgTpl">
+                <img style="display: inline-block; width: 50%; height: 100%;" src={{ d.avatar }}>
+            </script>-->
+            <script type="text/html" id="table-permissionadmin-webpermission">
+                <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="edit"><i
+                        class="layui-icon layui-icon-edit"></i>编辑</a>
+                <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del"><i
+                        class="layui-icon layui-icon-delete"></i>删除</a>
+            </script>
+        </div>
+    </div>
+</div>
+
+<script>
+    layui.define(['table', 'form'], function (exports) {
+        var $ = layui.$
+        , admin = layui.admin
+        , view = layui.view
+        , table = layui.table
+        , form = layui.form;
+
+        //用户管理
+        table.render({
+            elem: '#LAY-permission-manage'
+            ,request: {
+                pageName: 'current' //页码的参数名称，默认：page
+                ,limitName: 'size' //每页数据量的参数名，默认：limit
+            }
+            ,headers: {"Authorization": layui.data(layui.setter.tableName)["Authorization"]}
+            , url: layui.setter.baseProject + '/api/permission/page' //模拟接口
+            , cols: [[
+                {field: 'id', width: 100, title: '序号', type: 'numbers', sort: true}
+                , {field: 'perName', title: '菜单名称', minWidth: 100}
+                , {field: 'perCode', title: '菜单Code', minWidth: 150}
+				, {field: 'parentPerName', title: '父级菜单', minWidth: 150}
+				, {field: 'type', title: '类型', minWidth: 30}
+				, {field: 'url', title: '链接地址', minWidth: 150}
+				, {field: 'icon', title: '图标', minWidth: 50}
+				, {field: 'level', title: '级别', minWidth: 30}
+                , {field: 'createTime', title: '创建时间', sort: true}
+                , {title: '操作', width: 150, align: 'center', fixed: 'right', toolbar: '#table-permissionadmin-webpermission'}
+            ]]
+            , page: true
+            , limit: 10
+            , text: {
+                none: '暂无相关数据' //默认：无数据。注：该属性为 layui 2.2.5 开始新增
+            }
+        });
+
+        //监听工具条
+        table.on('tool(LAY-permission-manage)', function (obj) {
+            var data = obj.data;
+            if (obj.event === 'del') {
+                layer.confirm('真的删除吗', function (index) {
+                    admin.req({
+                        url: layui.setter.baseProject + "/api/permission/" + data.perId
+                        ,type: "DELETE"
+                        ,dataType: "json"
+                        ,contentType: "application/json;charset=utf-8"
+                        ,done: function (res) {
+                            layui.layer.alert(res.msg, function () {
+                                layui.table.reload('LAY-permission-manage'); //重载表格
+                                layer.closeAll(); //执行关闭
+                            })
+                        }
+                    })
+
+                });
+            } else if (obj.event === 'edit') {
+                admin.popup({                 
+                	shadeClose: true,
+                    title: '编辑角色信息'
+                    , area: ['500px', '450px']
+                    , id: 'LAY-popup-permission-add'
+                    , success: function (layero, index) {
+                        view(this.id).render('permission/permissionform', data).done(function () {
+                            form.render(null, 'layuiadmin-form-permissionadmin');
+                            //监听提交
+                            form.on('submit(LAY-permission-front-submit)', function (data) {
+                                var field = data.field; //获取提交的字段
+                                data.field.depName = $("#depId option:selected").html();
+                                //提交 Ajax 成功后，关闭当前弹层并重载表格
+                                admin.req({
+                                    url: layui.setter.baseProject + "/api/permission/" + obj.data.permissionId
+                                    ,type: "PUT"
+                                    ,data: JSON.stringify(field)
+                                    ,dataType: "json"
+                                    ,contentType: "application/json;charset=utf-8"
+                                    ,done: function (res) {
+                                        layui.layer.alert(res.msg, function () {
+                                            layui.table.reload('LAY-permission-manage'); //重载表格
+                                            layer.closeAll(); //执行关闭
+                                        })
+                                    }
+                                })
+                            });
+                        });
+                    }
+                });
+            }
+        });
+
+        form.render(null, 'layadmin-permissionfront-formlist');
+
+        //监听搜索
+        form.on('submit(LAY-permission-front-search)', function (data) {
+            var field = data.field;
+
+            //执行重载
+            table.reload('LAY-permission-manage', {
+                where: field
+                ,page: {
+                    curr: 1 //重新从第 1 页开始
+                }
+            });
+        });
+
+        //事件
+        var active = {
+            add: function () {
+                admin.popup({                 
+                	shadeClose: true,
+                    title: '添加角色信息'
+                    , area: ['700px', '550px']
+                    , id: 'LAY-popup-permission-add'
+                    , success: function (layero, index) {
+                        view(this.id).render('permission/permissionform').done(function () {
+                            form.render(null, 'layuiadmin-form-permissionadmin');
+
+                            //监听提交
+                            form.on('submit(LAY-permission-front-submit)', function (data) {
+                                var field = data.field; //获取提交的字段
+                                data.field.parentPerName = $("#parentId option:selected").html();
+
+                                //提交 Ajax 成功后，关闭当前弹层并重载表格
+                               admin.req({
+                                   url: layui.setter.baseProject + "/api/permission"
+                                   ,type: "POST"
+                                   ,data: JSON.stringify(field)
+                                   ,dataType: "json"
+                                   ,contentType: "application/json;charset=utf-8"
+                                   ,done: function (res) {
+                                       layui.layer.alert(res.msg, function () {
+                                           layui.table.reload('LAY-permission-manage'); //重载表格
+                                           layer.closeAll(); //执行关闭
+                                       })
+                                   }
+                               })
+                            });
+                        });
+                    }
+                });
+            }
+        };
+
+        $('.layui-btn.layuiadmin-btn-permissionadmin').on('click', function () {
+            var type = $(this).data('type');
+            active[type] ? active[type].call(this) : '';
+        });
+    });
+</script>
