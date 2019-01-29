@@ -65,15 +65,24 @@
             ,headers: {"Authorization": layui.data(layui.setter.tableName)["Authorization"]}
             , url: layui.setter.baseProject + '/api/permission/page' //模拟接口
             , cols: [[
-                {field: 'id', width: 100, title: '序号', type: 'numbers', sort: true}
-                , {field: 'perName', title: '菜单名称', minWidth: 100}
-                , {field: 'perCode', title: '菜单Code', minWidth: 150}
-				, {field: 'parentPerName', title: '父级菜单', minWidth: 150}
-				, {field: 'type', title: '类型', minWidth: 30}
-				, {field: 'url', title: '链接地址', minWidth: 150}
-				, {field: 'icon', title: '图标', minWidth: 50}
-				, {field: 'level', title: '级别', minWidth: 30}
-                , {field: 'createTime', title: '创建时间', sort: true}
+                {field: 'id', width: 100, title: '序号',align: 'center', type: 'numbers', sort: true}
+                , {field: 'perName', title: '菜单名称',align: 'center', minWidth: 100}
+                , {field: 'perCode', title: '菜单Code',align: 'center', minWidth: 150}
+				, {field: 'parentPerName', title: '父级菜单',align: 'center', minWidth: 150}
+				, {field: 'type', title: '类型',align: 'center', minWidth: 30 ,templet: function (d) {
+                        if (d.type == '0') {
+                            return "菜单";
+                        }else if (d.type == '1') {
+                            return "接口";
+                        }else{
+                            return "按钮";
+                        }
+                    },
+				}
+				, {field: 'url', title: '链接地址',align: 'center', minWidth: 150}
+				, {field: 'icon', title: '图标',align: 'center', minWidth: 50}
+				, {field: 'level', title: '级别',align: 'center', minWidth: 30}
+                , {field: 'createTime', title: '创建时间',align: 'center', sort: true}
                 , {title: '操作', width: 150, align: 'center', fixed: 'right', toolbar: '#table-permissionadmin-webpermission'}
             ]]
             , page: true
