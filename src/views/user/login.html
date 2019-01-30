@@ -46,7 +46,7 @@ layui.use(['admin', 'form', 'user'], function(){
 
   //提交
   form.on('submit(LAY-user-login-submit)', function(obj){
-//obj.field.appKey = "web";
+	  
     //请求登入接口
     admin.req({
       url: layui.setter.baseProject + '/api/login' //实际使用请改成服务端真实接口

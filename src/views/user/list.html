@@ -19,15 +19,9 @@
                     </div>
                 </div>
                 <div class="layui-inline">
-                    <label class="layui-form-label">真实姓名</label>
+                    <label class="layui-form-label">姓名</label>
                     <div class="layui-input-block">
                         <input type="text" name="realName" placeholder="请输入真实姓名" autocomplete="off" class="layui-input">
-                    </div>
-                </div>
-                <div class="layui-inline">
-                    <label class="layui-form-label">微信号</label>
-                    <div class="layui-input-block">
-                        <input type="text" name="wxNo" placeholder="请输入微信号" autocomplete="off" class="layui-input">
                     </div>
                 </div>
                 <div class="layui-inline">
@@ -93,20 +87,12 @@
                         }
                     }
                 }
-                , {field: 'user.realName', title: '真实姓名', minWidth: 100, templet: function (d) {
+                , {field: 'user.realName', title: '姓名', minWidth: 100, templet: function (d) {
                         if (d.user.realName != null && undefined != d.user.realName && "undefined" != d.user.realName) {
                             return d.user.realName;
                         }else{
                             return "";
                         }
-                    }
-                }
-                , {field: 'user.wxId', title: '微信号', minWidth: 100, templet: function (d) {
-                    if (d.user.wxId != null && undefined != d.user.wxId && "undefined" != d.user.wxId) {
-                        return d.user.wxId;
-                    }else{
-                        return "";
-                    }
                     }
                 }
                 , {field: 'role.roleName', title: '角色名称', minWidth: 100, templet: function (d) {
