@@ -126,7 +126,7 @@
                                 data.field.depName = $("#depId option:selected").html();
                                 //提交 Ajax 成功后，关闭当前弹层并重载表格
                                 admin.req({
-                                    url: layui.setter.baseProject + "/api/permission/" + obj.data.permissionId
+                                    url: layui.setter.baseProject + "/api/permission/" + obj.data.perId
                                     ,type: "PUT"
                                     ,data: JSON.stringify(field)
                                     ,dataType: "json"

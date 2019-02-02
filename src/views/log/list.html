@@ -1,0 +1,97 @@
+<title>日志管理</title>
+
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">主页</a>
+        <a><cite>日志列表</cite></a>
+    </div>
+</div>
+
+<div class="layui-fluid">
+    <div class="layui-card">
+		<div class="layui-form layui-card-header layuiadmin-card-header-auto" lay-filter="layadmin-dictionaryfront-formlist">
+		    <div class="layui-form-item">
+		
+		        <div class="layui-inline">
+		            <label class="layui-form-label">用户名</label>
+		            <div class="layui-input-block">
+		                <input type="text" name="username" placeholder="请输入用户名" autocomplete="off" class="layui-input">
+		            </div>
+		        </div>
+		        <div class="layui-inline">
+		            <label class="layui-form-label">用户操作</label>
+		            <div class="layui-input-block">
+		                <input type="text" name="operation" placeholder="请输入用户操作" autocomplete="off" class="layui-input">
+		            </div>
+		        </div>
+		
+		        <div class="layui-inline">
+		            <button class="layui-btn layuiadmin-btn-dictionaryadmin" lay-submit lay-filter="LAY-dictionary-front-search">
+		                <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+		            </button>
+		        </div>
+		    </div>
+		</div>
+        <div class="layui-card-body">
+            <table id="LAY-log-manage" lay-filter="LAY-log-manage"></table>
+			<script type="text/html" id="log-operation">
+			    <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="edit"><i
+			            class="layui-icon layui-icon-edit"></i>编辑</a>
+			    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del"><i
+			            class="layui-icon layui-icon-delete"></i>删除</a>
+			</script>
+        </div>
+    </div>
+</div>
+
+<script>
+    layui.define(['table', 'form'], function (exports) {
+        var $ = layui.$
+            , admin = layui.admin
+            , view = layui.view
+            , table = layui.table
+            , form = layui.form;
+
+        //用户管理
+        table.render({
+            elem: '#LAY-log-manage'
+            ,request: {
+                pageName: 'current' //页码的参数名称，默认：page
+                ,limitName: 'size' //每页数据量的参数名，默认：limit
+            }
+            ,headers: {"Authorization": layui.data(layui.setter.tableName)["Authorization"]}
+            , url: layui.setter.baseProject + '/api/log/page' //模拟接口
+            , cols: [[
+                {field: 'id', width: 80, title: '序号',align: 'center', type: 'numbers', sort: true}
+                , {field: 'username', title: '用户名',align: 'center', minWidth: 100}
+                , {field: 'operation', title: '用户操作',align: 'center', minWidth: 100}
+                , {field: 'method', title: '请求方法',align: 'center', minWidth: 300}
+				, {field: 'params', title: '请求参数',align: 'center', minWidth: 150}
+				, {field: 'time', title: '执行时长',align: 'center', minWidth: 100}
+                , {field: 'createTime', title: '创建时间',align: 'center', sort: true, minWidth: 200, templet: function (v) {
+                        return layui.util.toDateString(v.createTime, 'yyyy-MM-dd HH:mm:ss');
+                    }}
+				, {title: '操作', width: 150, align: 'center', fixed: 'right', toolbar: '#log-operation'}
+				
+            ]]
+            , page: true
+            , limit: 10
+            , text: {
+                none: '暂无相关数据' //默认：无数据。注：该属性为 layui 2.2.5 开始新增
+            }
+        });
+
+        //监听搜索
+        form.on('submit(LAY-log-front-search)', function (data) {
+            var field = data.field;
+
+            //执行重载
+            table.reload('LAY-log-manage', {
+                where: field
+                ,page: {
+                    curr: 1 //重新从第 1 页开始
+                }
+            });
+        });
+    });
+</script>

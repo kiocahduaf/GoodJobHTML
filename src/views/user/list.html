@@ -79,7 +79,7 @@
             , cols: [[
                 {width: 100, title: '序号', type: 'numbers', sort: true}
                 , {
-                    field: 'user.userName', title: '用户名', minWidth: 100, templet: function (d) {
+                    field: 'user.userName', title: '用户名',align: 'center', minWidth: 100, templet: function (d) {
                         if (d.user.userName != null && undefined != d.user.userName && "undefined" != d.user.userName) {
                             return d.user.userName;
                         }else{
@@ -87,7 +87,7 @@
                         }
                     }
                 }
-                , {field: 'user.realName', title: '姓名', minWidth: 100, templet: function (d) {
+                , {field: 'user.realName', title: '姓名',align: 'center', minWidth: 100, templet: function (d) {
                         if (d.user.realName != null && undefined != d.user.realName && "undefined" != d.user.realName) {
                             return d.user.realName;
                         }else{
@@ -95,7 +95,7 @@
                         }
                     }
                 }
-                , {field: 'role.roleName', title: '角色名称', minWidth: 100, templet: function (d) {
+                , {field: 'role.roleName', title: '角色名称',align: 'center', minWidth: 100, templet: function (d) {
                         if (null != d.role && undefined != d.role) {
                             return d.role.roleName;
                         }else {
@@ -103,11 +103,11 @@
                         }
                     }
                 }
-                , {field: 'user.tel', title: '联系方式',minWidth: 120, templet: function (d) {
+                , {field: 'user.tel', title: '联系方式',align: 'center',minWidth: 120, templet: function (d) {
                         return d.user.tel;
                     }
                 }
-                , {field: 'user.email', title: '邮箱', templet: function (d) {
+                , {field: 'user.email', title: '邮箱',align: 'center', templet: function (d) {
                         if (d.user.email != null && undefined != d.user.email && "undefined" != d.user.email) {
                             return d.user.email;
                         }else{
@@ -116,7 +116,7 @@
                     }
                 }
                 , {
-                    field: 'user.sex', width: 80, title: '性别', templet: function (d) {
+                    field: 'user.sex', width: 80, title: '性别',align: 'center', templet: function (d) {
                         if (d.user.sex == "0") {
                             return "男";
                         } else if (d.user.sex == "1") {
@@ -126,7 +126,7 @@
                         }
                     }
                 }
-                , {field: 'user.createTime', title: '创建时间', minWidth: 160, sort: true, templet: function (d) {
+                , {field: 'user.createTime', title: '创建时间',align: 'center', minWidth: 160, sort: true, templet: function (d) {
                         return layui.util.toDateString(d.user.createTime, 'yyyy-MM-dd HH:mm:ss');
                     }
                 }
