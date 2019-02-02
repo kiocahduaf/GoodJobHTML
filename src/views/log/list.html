@@ -34,12 +34,6 @@
 		</div>
         <div class="layui-card-body">
             <table id="LAY-log-manage" lay-filter="LAY-log-manage"></table>
-			<script type="text/html" id="log-operation">
-			    <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="edit"><i
-			            class="layui-icon layui-icon-edit"></i>编辑</a>
-			    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del"><i
-			            class="layui-icon layui-icon-delete"></i>删除</a>
-			</script>
         </div>
     </div>
 </div>
@@ -71,8 +65,6 @@
                 , {field: 'createTime', title: '创建时间',align: 'center', sort: true, minWidth: 200, templet: function (v) {
                         return layui.util.toDateString(v.createTime, 'yyyy-MM-dd HH:mm:ss');
                     }}
-				, {title: '操作', width: 150, align: 'center', fixed: 'right', toolbar: '#log-operation'}
-				
             ]]
             , page: true
             , limit: 10
